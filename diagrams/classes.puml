@@ -1,0 +1,510 @@
+@startuml classes
+title Diagrama de Classes - Sistema Academia
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' =====================================
+' CLASSES DE PESSOA (Herança)
+' =====================================
+
+abstract class Pessoa {
+    - id: Long
+    - nome: String
+    - cpf: String
+    - dataNascimento: Date
+    - email: String
+    - telefone: String
+    - endereco: Endereco
+    - dataCadastro: Date
+    - ativo: Boolean
+    --
+    + getId(): Long
+    + getNome(): String
+    + getIdade(): int
+    + validarCPF(): Boolean
+    + ativar(): void
+    + desativar(): void
+}
+
+class Aluno extends Pessoa {
+    - matricula: String
+    - dataMatricula: Date
+    - objetivo: String
+    - observacoesMedicas: String
+    - professor: Professor
+    --
+    + getMatricula(): String
+    + getTreinoDia(data: Date): Treino
+    + getAvaliacoes(): List<AvaliacaoFisica>
+    + getEvolucao(): List<RegistroEvolucao>
+    + agendarAvaliacao(data: Date, tipo: TipoAvaliacao): Agendamento
+    + consultarAgenda(): List<Agendamento>
+    + enviarMensagem(professor: Professor, conteudo: String): Mensagem
+}
+
+class Professor extends Pessoa {
+    - cref: String
+    - especialidades: List<String>
+    - horariosDisponiveis: List<Horario>
+    - percentualComissao: Double
+    --
+    + getCREF(): String
+    + getAlunos(): List<Aluno>
+    + registrarTreino(aluno: Aluno, treino: Treino): void
+    + registrarAvaliacao(aluno: Aluno, avaliacao: AvaliacaoFisica): void
+    + gerarRelatorioEvolucao(alunos: List<Aluno>, periodo: Periodo): Relatorio
+    + getMensagens(): List<Mensagem>
+}
+
+class Administrador extends Pessoa {
+    - cargo: String
+    - departamento: String
+    --
+    + exportarAtividadesExtras(periodo: Periodo): ArquivoExportacao
+    + exportarFrequencia(periodo: Periodo): ArquivoExportacao
+    + exportarEstatisticasProfessor(professor: Professor, periodo: Periodo): ArquivoExportacao
+    + getAlunosPorModalidade(modalidade: Modalidade): List<Aluno>
+    + gerenciarModalidade(modalidade: Modalidade): void
+}
+
+class Medico extends Pessoa {
+    - crm: String
+    - especialidade: String
+    --
+    + getCRM(): String
+    + consultarHistoricoAvaliacoes(aluno: Aluno): List<AvaliacaoFisica>
+    + atualizarAvaliacao(avaliacao: AvaliacaoFisica, parecer: String): void
+    + getAgenda(): List<Agendamento>
+}
+
+' =====================================
+' CLASSES DE TREINO
+' =====================================
+
+class Treino {
+    - id: Long
+    - aluno: Aluno
+    - professor: Professor
+    - dataInicio: Date
+    - dataFim: Date
+    - objetivo: String
+    - observacoes: String
+    - exercicios: List<ExercicioTreino>
+    - ativo: Boolean
+    --
+    + getId(): Long
+    + getExercicios(): List<ExercicioTreino>
+    + adicionarExercicio(exercicio: ExercicioTreino): void
+    + removerExercicio(exercicio: ExercicioTreino): void
+    + clonar(): Treino
+    + estaVigente(): Boolean
+}
+
+class Exercicio {
+    - id: Long
+    - nome: String
+    - descricao: String
+    - grupoMuscular: GrupoMuscular
+    - equipamento: String
+    - videoUrl: String
+    --
+    + getId(): Long
+    + getNome(): String
+    + getInstrucoes(): String
+}
+
+class ExercicioTreino {
+    - id: Long
+    - exercicio: Exercicio
+    - series: int
+    - repeticoes: int
+    - carga: Double
+    - descanso: int
+    - ordem: int
+    - observacoes: String
+    --
+    + getExercicio(): Exercicio
+    + getSeries(): int
+    + getRepeticoes(): int
+    + getCarga(): Double
+}
+
+enum GrupoMuscular {
+    PEITO
+    COSTAS
+    OMBROS
+    BICEPS
+    TRICEPS
+    ANTEBRACO
+    ABDOMEN
+    QUADRICEPS
+    POSTERIOR
+    GLUTEOS
+    PANTURRILHA
+    CARDIO
+}
+
+' =====================================
+' CLASSES DE AVALIAÇÃO
+' =====================================
+
+class AvaliacaoFisica {
+    - id: Long
+    - aluno: Aluno
+    - professor: Professor
+    - medico: Medico
+    - data: Date
+    - tipo: TipoAvaliacao
+    - medidasCorporais: MedidasCorporais
+    - testesFisicos: TestesFisicos
+    - observacoes: String
+    - parecerMedico: String
+    --
+    + getId(): Long
+    + getIMC(): Double
+    + getPercentualGordura(): Double
+    + compararCom(outra: AvaliacaoFisica): ComparacaoAvaliacao
+    + adicionarParecerMedico(parecer: String): void
+}
+
+class MedidasCorporais {
+    - peso: Double
+    - altura: Double
+    - percentualGordura: Double
+    - circunferenciaBraco: Double
+    - circunferenciaPeitoral: Double
+    - circunferenciaCintura: Double
+    - circunferenciaQuadril: Double
+    - circunferenciaCoxa: Double
+    - circunferenciaPanturrilha: Double
+    --
+    + calcularIMC(): Double
+    + calcularRCQ(): Double
+}
+
+class TestesFisicos {
+    - flexibilidade: Double
+    - resistenciaCardiaca: int
+    - forcaSuperiores: Double
+    - forcaInferiores: Double
+    - equilibrio: int
+    --
+    + getResultados(): Map<String, Double>
+}
+
+enum TipoAvaliacao {
+    INICIAL
+    PERIODICA
+    REAVALIACAO
+    ALTA
+}
+
+class RegistroEvolucao {
+    - id: Long
+    - aluno: Aluno
+    - professor: Professor
+    - data: Date
+    - tipoEvolucao: String
+    - descricao: String
+    - metricas: Map<String, Double>
+    - fotos: List<String>
+    --
+    + getId(): Long
+    + getMetricas(): Map<String, Double>
+}
+
+' =====================================
+' CLASSES DE MODALIDADE E TURMA
+' =====================================
+
+class Modalidade {
+    - id: Long
+    - nome: String
+    - descricao: String
+    - capacidadeMaxima: int
+    - valorAdicional: Double
+    - ativa: Boolean
+    - turmas: List<Turma>
+    --
+    + getId(): Long
+    + getNome(): String
+    + getTurmas(): List<Turma>
+    + getTotalAlunos(): int
+    + adicionarTurma(turma: Turma): void
+}
+
+class Turma {
+    - id: Long
+    - modalidade: Modalidade
+    - professor: Professor
+    - horario: Horario
+    - capacidade: int
+    - alunos: List<Aluno>
+    - ativa: Boolean
+    --
+    + getId(): Long
+    + getVagasDisponiveis(): int
+    + adicionarAluno(aluno: Aluno): Boolean
+    + removerAluno(aluno: Aluno): void
+    + estaLotada(): Boolean
+}
+
+class Horario {
+    - id: Long
+    - diaSemana: DiaSemana
+    - horaInicio: Time
+    - horaFim: Time
+    --
+    + getDuracao(): int
+    + conflitaCom(outro: Horario): Boolean
+}
+
+enum DiaSemana {
+    SEGUNDA
+    TERCA
+    QUARTA
+    QUINTA
+    SEXTA
+    SABADO
+    DOMINGO
+}
+
+' =====================================
+' CLASSES DE AGENDAMENTO
+' =====================================
+
+class Agendamento {
+    - id: Long
+    - aluno: Aluno
+    - tipo: TipoAgendamento
+    - data: Date
+    - horario: Horario
+    - status: StatusAgendamento
+    - observacoes: String
+    --
+    + getId(): Long
+    + confirmar(): void
+    + cancelar(): void
+    + reagendar(novaData: Date, novoHorario: Horario): void
+}
+
+enum TipoAgendamento {
+    AVALIACAO_FISICA
+    AULA_MODALIDADE
+    CONSULTA_MEDICA
+}
+
+enum StatusAgendamento {
+    PENDENTE
+    CONFIRMADO
+    CANCELADO
+    REALIZADO
+}
+
+' =====================================
+' CLASSES DE COMUNICAÇÃO
+' =====================================
+
+class Mensagem {
+    - id: Long
+    - remetente: Pessoa
+    - destinatario: Pessoa
+    - conteudo: String
+    - dataEnvio: DateTime
+    - lida: Boolean
+    - anexos: List<String>
+    --
+    + getId(): Long
+    + marcarComoLida(): void
+    + getAnexos(): List<String>
+}
+
+class Notificacao {
+    - id: Long
+    - destinatario: Pessoa
+    - tipo: TipoNotificacao
+    - titulo: String
+    - mensagem: String
+    - dataEnvio: DateTime
+    - lida: Boolean
+    - canal: CanalNotificacao
+    --
+    + enviar(): Boolean
+    + marcarComoLida(): void
+}
+
+enum TipoNotificacao {
+    AGENDAMENTO_CONFIRMADO
+    AGENDAMENTO_CANCELADO
+    NOVO_TREINO
+    AVALIACAO_DISPONIVEL
+    MENSAGEM_RECEBIDA
+}
+
+enum CanalNotificacao {
+    EMAIL
+    PUSH
+    SMS
+}
+
+' =====================================
+' CLASSES DE INTEGRAÇÃO
+' =====================================
+
+class AtividadeExtra {
+    - id: Long
+    - aluno: Aluno
+    - descricao: String
+    - data: Date
+    - valor: Double
+    - exportada: Boolean
+    --
+    + getId(): Long
+    + marcarComoExportada(): void
+}
+
+class RegistroFrequencia {
+    - id: Long
+    - aluno: Aluno
+    - dataEntrada: DateTime
+    - dataSaida: DateTime
+    --
+    + getDuracao(): int
+}
+
+class ArquivoExportacao {
+    - id: Long
+    - tipo: TipoExportacao
+    - dataGeracao: DateTime
+    - periodo: Periodo
+    - conteudo: byte[]
+    - status: StatusExportacao
+    --
+    + gerar(): void
+    + enviar(): Boolean
+    + download(): byte[]
+}
+
+enum TipoExportacao {
+    ATIVIDADES_EXTRAS
+    FREQUENCIA
+    ESTATISTICAS_PROFESSOR
+}
+
+enum StatusExportacao {
+    GERADO
+    ENVIADO
+    ERRO
+}
+
+class Periodo {
+    - dataInicio: Date
+    - dataFim: Date
+    --
+    + contem(data: Date): Boolean
+    + getDias(): int
+}
+
+' =====================================
+' CLASSES AUXILIARES
+' =====================================
+
+class Endereco {
+    - logradouro: String
+    - numero: String
+    - complemento: String
+    - bairro: String
+    - cidade: String
+    - estado: String
+    - cep: String
+    --
+    + getEnderecoCompleto(): String
+}
+
+class Usuario {
+    - id: Long
+    - pessoa: Pessoa
+    - login: String
+    - senha: String
+    - perfil: Perfil
+    - ativo: Boolean
+    - ultimoAcesso: DateTime
+    - tentativasLogin: int
+    --
+    + autenticar(senha: String): Boolean
+    + alterarSenha(novaSenha: String): void
+    + bloquear(): void
+    + desbloquear(): void
+}
+
+enum Perfil {
+    ALUNO
+    PROFESSOR
+    ADMINISTRADOR
+    MEDICO
+}
+
+' =====================================
+' RELACIONAMENTOS
+' =====================================
+
+' Pessoa e suas especializações
+Pessoa "1" *-- "1" Endereco : possui >
+Pessoa "1" -- "0..1" Usuario : tem conta >
+
+' Aluno
+Aluno "0..*" -- "1" Professor : é acompanhado por >
+Aluno "1" -- "0..*" Treino : possui >
+Aluno "1" -- "0..*" AvaliacaoFisica : realiza >
+Aluno "1" -- "0..*" RegistroEvolucao : tem >
+Aluno "1" -- "0..*" Agendamento : faz >
+Aluno "0..*" -- "0..*" Turma : participa >
+Aluno "1" -- "0..*" AtividadeExtra : realiza >
+Aluno "1" -- "0..*" RegistroFrequencia : registra >
+
+' Professor
+Professor "1" -- "0..*" Treino : elabora >
+Professor "1" -- "0..*" AvaliacaoFisica : realiza >
+Professor "1" -- "0..*" RegistroEvolucao : registra >
+Professor "1" -- "0..*" Turma : leciona >
+
+' Médico
+Medico "0..1" -- "0..*" AvaliacaoFisica : acompanha >
+
+' Treino e Exercício
+Treino "1" *-- "1..*" ExercicioTreino : contém >
+ExercicioTreino "0..*" -- "1" Exercicio : referencia >
+Exercicio -- GrupoMuscular
+
+' Avaliação
+AvaliacaoFisica "1" *-- "1" MedidasCorporais : contém >
+AvaliacaoFisica "1" *-- "1" TestesFisicos : contém >
+AvaliacaoFisica -- TipoAvaliacao
+
+' Modalidade e Turma
+Modalidade "1" *-- "0..*" Turma : possui >
+Turma "1" -- "1" Horario : ocorre em >
+Horario -- DiaSemana
+
+' Agendamento
+Agendamento -- TipoAgendamento
+Agendamento -- StatusAgendamento
+Agendamento "0..*" -- "1" Horario : utiliza >
+
+' Comunicação
+Mensagem "0..*" -- "1" Pessoa : envia >
+Mensagem "0..*" -- "1" Pessoa : recebe >
+Notificacao "0..*" -- "1" Pessoa : destina-se a >
+Notificacao -- TipoNotificacao
+Notificacao -- CanalNotificacao
+
+' Exportação
+ArquivoExportacao "1" -- "1" Periodo : refere-se a >
+ArquivoExportacao -- TipoExportacao
+ArquivoExportacao -- StatusExportacao
+
+' Usuário
+Usuario -- Perfil
+
+@enduml

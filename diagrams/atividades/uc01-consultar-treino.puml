@@ -1,0 +1,55 @@
+@startuml uc01-consultar-treino
+title Diagrama de Atividades - UC01 Consultar Treino Diário
+
+start
+
+:Aluno acessa terminal na academia;
+
+:Sistema solicita autenticação;
+
+:Aluno fornece credenciais;
+
+if (Credenciais válidas?) then (sim)
+    :Sistema exibe menu principal;
+
+    :Aluno seleciona "Consultar Treino Diário";
+
+    :Sistema busca treino da data atual;
+
+    if (Treino encontrado?) then (sim)
+        :Sistema exibe lista de exercícios;
+
+        note right
+            Exibe:
+            - Nome do exercício
+            - Séries
+            - Repetições
+            - Carga
+            - Observações
+        end note
+
+        :Aluno visualiza treino;
+
+        :Sistema registra frequência;
+
+    else (não)
+        :Sistema exibe mensagem\n"Treino não cadastrado";
+
+        :Sistema sugere contato\ncom professor;
+    endif
+
+else (não)
+    :Sistema exibe erro de autenticação;
+
+    if (Tentativas < 3?) then (sim)
+        :Retorna para autenticação;
+        backward:Aluno fornece credenciais;
+    else (não)
+        :Sistema bloqueia acesso temporariamente;
+        stop
+    endif
+endif
+
+stop
+
+@enduml

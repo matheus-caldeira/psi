@@ -1,0 +1,78 @@
+@startuml uc19-autenticar-usuario
+title Diagrama de Atividades - UC19 Autenticar Usuário
+
+start
+
+:Sistema exibe tela de login;
+
+:Usuário informa\ne-mail/matrícula;
+
+:Usuário informa senha;
+
+:Sistema valida credenciais;
+
+if (Credenciais válidas?) then (sim)
+
+    :Sistema verifica status\ndo cadastro;
+
+    if (Cadastro ativo?) then (sim)
+
+        if (Primeiro acesso?) then (sim)
+
+            :Sistema solicita\ncriação de nova senha;
+
+            :Usuário cria nova senha;
+
+            :Sistema exibe\ntermos de uso;
+
+            :Usuário aceita termos;
+
+        else (não)
+            #palegreen:Prossegue normalmente;
+        endif
+
+        :Sistema carrega\npermissões do perfil;
+
+        :Sistema inicia sessão;
+
+        :Sistema redireciona para\nárea apropriada;
+
+        :Autenticação\nbem-sucedida;
+
+    else (não)
+
+        :Sistema informa\n"Cadastro inativo";
+
+        :Sistema orienta contato\ncom administração;
+
+        stop
+
+    endif
+
+else (não)
+
+    :Sistema incrementa\ncontador de tentativas;
+
+    if (Tentativas < 3?) then (sim)
+
+        :Sistema exibe erro\n"Credenciais inválidas";
+
+        backward:Usuário informa\ne-mail/matrícula;
+
+    else (não)
+
+        :Sistema bloqueia conta\ntemporariamente;
+
+        :Sistema envia e-mail\nde alerta ao usuário;
+
+        :Acesso bloqueado;
+
+        stop
+
+    endif
+
+endif
+
+stop
+
+@enduml

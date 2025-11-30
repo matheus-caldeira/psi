@@ -1,0 +1,60 @@
+@startuml uc02-agendar-avaliacao
+title Diagrama de Atividades - UC02 Agendar Avaliação Física
+
+start
+
+:Aluno acessa sistema via web/mobile;
+
+:Sistema solicita autenticação;
+
+:Aluno se autentica;
+
+:Aluno seleciona\n"Agendar Avaliação Física";
+
+:Sistema exibe tipos de\navaliação disponíveis;
+
+:Aluno seleciona tipo de avaliação;
+
+:Sistema exibe calendário\ncom horários disponíveis;
+
+if (Horários disponíveis?) then (sim)
+
+    :Aluno seleciona data e horário;
+
+    :Sistema exibe resumo\ndo agendamento;
+
+    :Aluno confirma agendamento;
+
+    if (Horário ainda disponível?) then (sim)
+
+        :Sistema registra agendamento;
+
+        fork
+            :Sistema envia notificação\nao aluno;
+        fork again
+            :Sistema envia notificação\nao profissional;
+        end fork
+
+        :Agendamento confirmado;
+
+    else (não)
+        :Sistema informa conflito\nde horário;
+
+        :Retorna ao calendário;
+        backward:Sistema exibe calendário\ncom horários disponíveis;
+    endif
+
+else (não)
+    :Sistema sugere\ndatas alternativas;
+
+    if (Aluno aceita alternativa?) then (sim)
+        :Aluno seleciona nova data;
+        backward:Sistema exibe calendário\ncom horários disponíveis;
+    else (não)
+        :Operação cancelada;
+    endif
+endif
+
+stop
+
+@enduml

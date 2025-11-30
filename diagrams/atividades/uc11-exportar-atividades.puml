@@ -1,0 +1,73 @@
+@startuml uc11-exportar-atividades
+title Diagrama de Atividades - UC11 Exportar Atividades Extras
+
+start
+
+:Administrador acessa sistema;
+
+:Administrador seleciona\n"Integrações";
+
+:Administrador seleciona\n"Exportar Atividades Extras";
+
+:Sistema exibe filtros\nde exportação;
+
+:Administrador define\nperíodo de exportação;
+
+:Administrador seleciona\ntipos de atividades;
+
+:Sistema busca atividades\nno período;
+
+if (Atividades encontradas?) then (sim)
+
+    :Sistema gera prévia\ndos dados;
+
+    :Sistema exibe resumo:
+    - Total de alunos
+    - Total de atividades
+    - Valor total;
+
+    :Administrador revisa dados;
+
+    if (Dados corretos?) then (sim)
+
+        :Administrador confirma\nexportação;
+
+        :Sistema gera arquivo\nno formato financeiro;
+
+        :Sistema tenta enviar ao\nSistema Financeiro;
+
+        if (Envio bem-sucedido?) then (sim)
+
+            :Sistema registra log\nde exportação;
+
+            :Exportação concluída\ncom sucesso;
+
+        else (não)
+
+            :Sistema registra erro\nde comunicação;
+
+            :Sistema disponibiliza\narquivo para download;
+
+            :Administrador pode\nreenviar manualmente;
+
+        endif
+
+    else (não)
+
+        :Administrador ajusta\nfiltros;
+
+        backward:Sistema busca atividades\nno período;
+
+    endif
+
+else (não)
+
+    :Sistema informa\n"Nenhuma atividade encontrada";
+
+    :Administrador pode\najustar período;
+
+endif
+
+stop
+
+@enduml

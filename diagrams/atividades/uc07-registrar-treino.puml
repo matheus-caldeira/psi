@@ -1,0 +1,74 @@
+@startuml uc07-registrar-treino
+title Diagrama de Atividades - UC07 Registrar Treino Programado
+
+start
+
+:Professor acessa sistema;
+
+:Sistema solicita autenticação;
+
+:Professor se autentica;
+
+:Professor seleciona\n"Gerenciar Treinos";
+
+:Sistema exibe lista de alunos\nvinculados ao professor;
+
+:Professor seleciona aluno;
+
+:Sistema exibe histórico\nde treinos do aluno;
+
+if (Avaliação física recente?) then (sim)
+    #palegreen:Prossegue normalmente;
+else (não)
+    :Sistema exibe alerta\n"Avaliação desatualizada";
+
+    if (Professor deseja continuar?) then (sim)
+        #palegreen:Prossegue com ressalva;
+    else (não)
+        :Professor agenda\navaliação física;
+        stop
+    endif
+endif
+
+switch (Ação desejada?)
+case (Novo Treino)
+    :Professor seleciona\n"Novo Treino";
+case (Copiar Treino)
+    :Professor seleciona\n"Copiar Treino";
+    :Professor escolhe treino base;
+    :Sistema copia exercícios;
+case (Usar Modelo)
+    :Professor seleciona\n"Usar Modelo";
+    :Sistema exibe modelos\npré-definidos;
+    :Professor seleciona modelo;
+endswitch
+
+:Professor define período\nde vigência do treino;
+
+repeat
+    :Professor adiciona exercício;
+
+    :Professor define:
+    - Séries
+    - Repetições
+    - Carga
+    - Descanso;
+
+    :Professor adiciona observações\n(opcional);
+
+repeat while (Adicionar mais exercícios?) is (sim)
+->não;
+
+:Sistema exibe resumo do treino;
+
+:Professor confirma registro;
+
+:Sistema salva treino;
+
+:Sistema disponibiliza treino\npara o aluno;
+
+:Treino registrado com sucesso;
+
+stop
+
+@enduml
