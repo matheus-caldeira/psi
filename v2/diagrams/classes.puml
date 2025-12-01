@@ -1,0 +1,491 @@
+@startuml classes
+title Sistema de Gestão Academia - Diagrama de Classes
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' =====================================
+' ENUMERAÇÕES
+' =====================================
+
+enum CategoriaMuscular {
+    PEITORAL
+    DORSAL
+    DELTOIDES
+    BICEPS
+    TRICEPS
+    CORE
+    QUADRICEPS
+    ISQUIOTIBIAIS
+    GLUTEO
+    PANTURRILHA
+    CARDIOVASCULAR
+}
+
+enum DiasDaSemana {
+    SEGUNDA_FEIRA
+    TERCA_FEIRA
+    QUARTA_FEIRA
+    QUINTA_FEIRA
+    SEXTA_FEIRA
+    SABADO
+    DOMINGO
+}
+
+enum CategoriaAvaliacao {
+    ADMISSIONAL
+    PERIODICA
+    RETORNO
+    DESLIGAMENTO
+}
+
+enum SituacaoAgendamento {
+    AGUARDANDO
+    CONFIRMADO
+    CANCELADO
+    CONCLUIDO
+}
+
+enum CategoriaAgendamento {
+    AVALIACAO
+    AULA_MODALIDADE
+    ATENDIMENTO_MEDICO
+}
+
+enum CanalEnvio {
+    CORREIO_ELETRONICO
+    NOTIFICACAO_PUSH
+    MENSAGEM_TEXTO
+}
+
+enum TipoAlerta {
+    CONFIRMACAO_AGENDAMENTO
+    CANCELAMENTO_AGENDAMENTO
+    NOVO_PROGRAMA_TREINO
+    RESULTADO_AVALIACAO
+    NOVA_MENSAGEM
+}
+
+enum CategoriaExportacao {
+    ATIVIDADES_ADICIONAIS
+    REGISTRO_FREQUENCIA
+    INDICADORES_PROFESSOR
+}
+
+enum SituacaoExportacao {
+    PROCESSADO
+    TRANSMITIDO
+    FALHA
+}
+
+enum PerfilAcesso {
+    ALUNO
+    INSTRUTOR
+    GESTOR
+    PROFISSIONAL_SAUDE
+}
+
+' =====================================
+' CLASSE BASE - PESSOA
+' =====================================
+
+abstract class Individuo {
+    - codigo: Long
+    - nomeCompleto: String
+    - documentoCPF: String
+    - nascimento: Date
+    - correioEletronico: String
+    - celular: String
+    - localizacao: Localizacao
+    - dataCriacao: Date
+    - situacaoAtiva: Boolean
+    --
+    + getCodigo(): Long
+    + getNomeCompleto(): String
+    + calcularIdade(): int
+    + verificarDocumento(): Boolean
+    + habilitar(): void
+    + desabilitar(): void
+}
+
+' =====================================
+' ESPECIALIZAÇÕES DE PESSOA
+' =====================================
+
+class Matriculado extends Individuo {
+    - numeroMatricula: String
+    - dataInscricao: Date
+    - objetivoTreino: String
+    - restricoesSaude: String
+    - instrutorResponsavel: Instrutor
+    --
+    + getNumeroMatricula(): String
+    + obterProgramaDia(data: Date): ProgramaTreino
+    + listarAvaliacoes(): List<ExameFisico>
+    + listarProgressos(): List<HistoricoProgresso>
+    + solicitarAgendamento(data: Date, categoria: CategoriaAvaliacao): Compromisso
+    + visualizarCompromissos(): List<Compromisso>
+    + enviarComunicado(instrutor: Instrutor, texto: String): Comunicado
+}
+
+class Instrutor extends Individuo {
+    - registroCREF: String
+    - areasAtuacao: List<String>
+    - disponibilidades: List<FaixaHoraria>
+    - taxaComissao: Double
+    --
+    + getRegistroCREF(): String
+    + listarMatriculados(): List<Matriculado>
+    + definirPrograma(matriculado: Matriculado, programa: ProgramaTreino): void
+    + preencherExame(matriculado: Matriculado, exame: ExameFisico): void
+    + emitirRelatorioProgresso(matriculados: List<Matriculado>, intervalo: Intervalo): Relatorio
+    + obterComunicados(): List<Comunicado>
+}
+
+class Gestor extends Individuo {
+    - funcao: String
+    - setor: String
+    --
+    + transmitirAtividadesAdicionais(intervalo: Intervalo): ArquivoTransmissao
+    + transmitirFrequencia(intervalo: Intervalo): ArquivoTransmissao
+    + transmitirIndicadores(instrutor: Instrutor, intervalo: Intervalo): ArquivoTransmissao
+    + listarMatriculadosPorCategoria(categoria: CategoriaAtividade): List<Matriculado>
+    + administrarCategorias(categoria: CategoriaAtividade): void
+}
+
+class ProfissionalSaude extends Individuo {
+    - registroCRM: String
+    - areaEspecializacao: String
+    --
+    + getRegistroCRM(): String
+    + consultarHistoricoExames(matriculado: Matriculado): List<ExameFisico>
+    + incluirParecer(exame: ExameFisico, observacao: String): void
+    + obterAgenda(): List<Compromisso>
+}
+
+' =====================================
+' CLASSES DE PROGRAMA DE TREINO
+' =====================================
+
+class ProgramaTreino {
+    - codigo: Long
+    - matriculado: Matriculado
+    - instrutor: Instrutor
+    - inicioVigencia: Date
+    - terminoVigencia: Date
+    - foco: String
+    - anotacoes: String
+    - itensPrograma: List<ItemPrograma>
+    - vigente: Boolean
+    --
+    + getCodigo(): Long
+    + listarItens(): List<ItemPrograma>
+    + incluirItem(item: ItemPrograma): void
+    + excluirItem(item: ItemPrograma): void
+    + duplicar(): ProgramaTreino
+    + verificarVigencia(): Boolean
+}
+
+class Movimento {
+    - codigo: Long
+    - denominacao: String
+    - orientacoes: String
+    - categoriaMuscular: CategoriaMuscular
+    - aparelho: String
+    - linkVideo: String
+    --
+    + getCodigo(): Long
+    + getDenominacao(): String
+    + getOrientacoes(): String
+}
+
+class ItemPrograma {
+    - codigo: Long
+    - movimento: Movimento
+    - quantidadeSeries: int
+    - quantidadeRepeticoes: int
+    - pesoUtilizado: Double
+    - intervaloDescanso: int
+    - sequencia: int
+    - detalhes: String
+    --
+    + getMovimento(): Movimento
+    + getQuantidadeSeries(): int
+    + getQuantidadeRepeticoes(): int
+    + getPesoUtilizado(): Double
+}
+
+' =====================================
+' CLASSES DE AVALIAÇÃO FÍSICA
+' =====================================
+
+class ExameFisico {
+    - codigo: Long
+    - matriculado: Matriculado
+    - instrutor: Instrutor
+    - profissionalSaude: ProfissionalSaude
+    - dataRealizacao: Date
+    - categoria: CategoriaAvaliacao
+    - dadosCorporais: DadosCorporais
+    - resultadosTestes: ResultadosTestes
+    - anotacoes: String
+    - observacaoMedica: String
+    --
+    + getCodigo(): Long
+    + calcularIMC(): Double
+    + obterPercentualGordura(): Double
+    + compararResultados(outro: ExameFisico): ComparativoExame
+    + registrarObservacaoMedica(observacao: String): void
+}
+
+class DadosCorporais {
+    - massaCorporal: Double
+    - estatura: Double
+    - taxaGordura: Double
+    - medidaBraco: Double
+    - medidaTorax: Double
+    - medidaAbdomen: Double
+    - medidaQuadril: Double
+    - medidaPerna: Double
+    - medidaGemeo: Double
+    --
+    + calcularIMC(): Double
+    + calcularRelacaoCinturaQuadril(): Double
+}
+
+class ResultadosTestes {
+    - indiceFlex: Double
+    - capacidadeCardio: int
+    - forcaMembrosSuperiores: Double
+    - forcaMembrosInferiores: Double
+    - tempoEquilibrio: int
+    --
+    + obterResultados(): Map<String, Double>
+}
+
+class HistoricoProgresso {
+    - codigo: Long
+    - matriculado: Matriculado
+    - instrutor: Instrutor
+    - dataRegistro: Date
+    - areaProgresso: String
+    - descritivo: String
+    - indicadores: Map<String, Double>
+    - imagens: List<String>
+    --
+    + getCodigo(): Long
+    + getIndicadores(): Map<String, Double>
+}
+
+' =====================================
+' CLASSES DE MODALIDADE E TURMA
+' =====================================
+
+class CategoriaAtividade {
+    - codigo: Long
+    - denominacao: String
+    - descritivo: String
+    - limiteParticipantes: int
+    - custoAdicional: Double
+    - disponivel: Boolean
+    - gruposHorarios: List<GrupoHorario>
+    --
+    + getCodigo(): Long
+    + getDenominacao(): String
+    + listarGrupos(): List<GrupoHorario>
+    + contarParticipantes(): int
+    + criarGrupo(grupo: GrupoHorario): void
+}
+
+class GrupoHorario {
+    - codigo: Long
+    - categoriaAtividade: CategoriaAtividade
+    - instrutor: Instrutor
+    - faixaHoraria: FaixaHoraria
+    - limiteVagas: int
+    - participantes: List<Matriculado>
+    - aberto: Boolean
+    --
+    + getCodigo(): Long
+    + contarVagasLivres(): int
+    + incluirParticipante(matriculado: Matriculado): Boolean
+    + removerParticipante(matriculado: Matriculado): void
+    + verificarLotacao(): Boolean
+}
+
+class FaixaHoraria {
+    - codigo: Long
+    - diaDaSemana: DiasDaSemana
+    - horarioInicial: Time
+    - horarioFinal: Time
+    --
+    + calcularDuracao(): int
+    + verificarConflito(outra: FaixaHoraria): Boolean
+}
+
+' =====================================
+' CLASSES DE AGENDAMENTO
+' =====================================
+
+class Compromisso {
+    - codigo: Long
+    - matriculado: Matriculado
+    - categoria: CategoriaAgendamento
+    - dataAgendada: Date
+    - faixaHoraria: FaixaHoraria
+    - situacao: SituacaoAgendamento
+    - detalhes: String
+    --
+    + getCodigo(): Long
+    + efetivarConfirmacao(): void
+    + efetivarCancelamento(): void
+    + reagendar(novaData: Date, novaFaixa: FaixaHoraria): void
+}
+
+' =====================================
+' CLASSES DE COMUNICAÇÃO
+' =====================================
+
+class Comunicado {
+    - codigo: Long
+    - origem: Individuo
+    - destino: Individuo
+    - texto: String
+    - momentoEnvio: DateTime
+    - visualizado: Boolean
+    - arquivosAnexos: List<String>
+    --
+    + getCodigo(): Long
+    + marcarVisualizado(): void
+    + listarAnexos(): List<String>
+}
+
+class Alerta {
+    - codigo: Long
+    - destinatario: Individuo
+    - categoria: TipoAlerta
+    - cabecalho: String
+    - corpo: String
+    - momentoDisparo: DateTime
+    - visualizado: Boolean
+    - canalEnvio: CanalEnvio
+    --
+    + disparar(): Boolean
+    + marcarVisualizado(): void
+}
+
+' =====================================
+' CLASSES DE INTEGRAÇÃO
+' =====================================
+
+class AtividadeAdicional {
+    - codigo: Long
+    - matriculado: Matriculado
+    - descritivo: String
+    - dataOcorrencia: Date
+    - valorCobrado: Double
+    - transmitida: Boolean
+    --
+    + getCodigo(): Long
+    + marcarTransmitida(): void
+}
+
+class RegistroPresenca {
+    - codigo: Long
+    - matriculado: Matriculado
+    - momentoEntrada: DateTime
+    - momentoSaida: DateTime
+    --
+    + calcularPermanencia(): int
+}
+
+class ArquivoTransmissao {
+    - codigo: Long
+    - categoria: CategoriaExportacao
+    - momentoGeracao: DateTime
+    - intervalo: Intervalo
+    - dados: byte[]
+    - situacao: SituacaoExportacao
+    --
+    + processar(): void
+    + transmitir(): Boolean
+    + baixar(): byte[]
+}
+
+class Intervalo {
+    - dataInicial: Date
+    - dataFinal: Date
+    --
+    + contemData(data: Date): Boolean
+    + contarDias(): int
+}
+
+' =====================================
+' CLASSES AUXILIARES
+' =====================================
+
+class Localizacao {
+    - endereco: String
+    - numero: String
+    - complemento: String
+    - bairro: String
+    - municipio: String
+    - uf: String
+    - codigoPostal: String
+    --
+    + obterEnderecoCompleto(): String
+}
+
+class ContaAcesso {
+    - codigo: Long
+    - individuo: Individuo
+    - identificador: String
+    - senhaHash: String
+    - perfilAcesso: PerfilAcesso
+    - habilitada: Boolean
+    - ultimoAcesso: DateTime
+    - contadorTentativas: int
+    --
+    + validarCredenciais(senha: String): Boolean
+    + redefinirSenha(novaSenha: String): void
+    + bloquear(): void
+    + desbloquear(): void
+}
+
+' =====================================
+' RELACIONAMENTOS
+' =====================================
+
+' Composições
+Individuo "1" *-- "1" Localizacao : possui >
+ExameFisico "1" *-- "1" DadosCorporais : contém >
+ExameFisico "1" *-- "1" ResultadosTestes : contém >
+ProgramaTreino "1" *-- "1..*" ItemPrograma : compõe >
+CategoriaAtividade "1" *-- "0..*" GrupoHorario : organiza >
+
+' Agregações
+ItemPrograma "0..*" -- "1" Movimento : utiliza >
+GrupoHorario "0..*" -- "0..*" Matriculado : reúne >
+
+' Associações
+Individuo "1" -- "0..1" ContaAcesso : acessa via >
+Matriculado "0..*" -- "1" Instrutor : acompanhado por >
+Matriculado "1" -- "0..*" ProgramaTreino : segue >
+Instrutor "1" -- "0..*" ProgramaTreino : elabora >
+Matriculado "1" -- "0..*" ExameFisico : submete-se a >
+Instrutor "1" -- "0..*" ExameFisico : conduz >
+ProfissionalSaude "0..1" -- "0..*" ExameFisico : supervisiona >
+Matriculado "1" -- "0..*" HistoricoProgresso : evolui com >
+Instrutor "1" -- "0..*" HistoricoProgresso : documenta >
+Instrutor "1" -- "0..*" GrupoHorario : ministra >
+GrupoHorario "1" -- "1" FaixaHoraria : ocorre em >
+Matriculado "1" -- "0..*" Compromisso : agenda >
+Compromisso "0..*" -- "1" FaixaHoraria : reserva >
+Comunicado "0..*" -- "1" Individuo : origina de >
+Comunicado "0..*" -- "1" Individuo : destina-se a >
+Alerta "0..*" -- "1" Individuo : notifica >
+Matriculado "1" -- "0..*" AtividadeAdicional : realiza >
+Matriculado "1" -- "0..*" RegistroPresenca : marca >
+ArquivoTransmissao "1" -- "1" Intervalo : abrange >
+
+@enduml

@@ -1,0 +1,106 @@
+@startuml casos-uso
+title Sistema de Gestão Academia - Diagrama de Casos de Uso
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+' === ATORES DO SISTEMA ===
+actor "Aluno" as aluno
+actor "Professor" as professor
+actor "Administrador" as admin
+actor "Médico" as medico
+actor "Sistema Financeiro" as sistemaFinanceiro <<system>>
+
+' === FRONTEIRA DO SISTEMA ===
+rectangle "Sistema de Gestão Academia" {
+
+    ' --- Funcionalidades Web (Aluno) ---
+    package "Acesso Web - Aluno" {
+        usecase "UC01 - Agendar Avaliação Física" as UC01
+        usecase "UC02 - Agendar Aula em Modalidade" as UC02
+        usecase "UC03 - Consultar Evolução Física" as UC03
+        usecase "UC04 - Visualizar Agenda" as UC04
+        usecase "UC05 - Enviar Mensagem ao Professor" as UC05
+    }
+
+    ' --- Funcionalidades Terminal Local ---
+    package "Terminal Academia" {
+        usecase "UC06 - Consultar Treino do Dia" as UC06
+    }
+
+    ' --- Funcionalidades do Professor ---
+    package "Área do Professor" {
+        usecase "UC07 - Cadastrar Treino do Aluno" as UC07
+        usecase "UC08 - Registrar Avaliação Física" as UC08
+        usecase "UC09 - Acompanhar Evolução do Aluno" as UC09
+        usecase "UC10 - Emitir Relatório de Evolução" as UC10
+    }
+
+    ' --- Funcionalidades Administrativas ---
+    package "Área Administrativa" {
+        usecase "UC11 - Exportar Atividades para Financeiro" as UC11
+        usecase "UC12 - Exportar Frequência para Financeiro" as UC12
+        usecase "UC13 - Exportar Métricas por Professor" as UC13
+        usecase "UC14 - Listar Alunos por Modalidade" as UC14
+        usecase "UC15 - Administrar Modalidades" as UC15
+    }
+
+    ' --- Funcionalidades do Médico ---
+    package "Área Médica" {
+        usecase "UC16 - Acessar Histórico de Avaliações" as UC16
+        usecase "UC17 - Incluir Parecer Médico" as UC17
+        usecase "UC18 - Visualizar Agenda de Consultas" as UC18
+    }
+
+    ' --- Funcionalidades de Suporte ---
+    usecase "UC19 - Realizar Login" as UC19
+    usecase "UC20 - Disparar Notificação" as UC20
+}
+
+' === ASSOCIAÇÕES DO ALUNO ===
+aluno --> UC01
+aluno --> UC02
+aluno --> UC03
+aluno --> UC04
+aluno --> UC05
+aluno --> UC06
+
+' === ASSOCIAÇÕES DO PROFESSOR ===
+professor --> UC05
+professor --> UC07
+professor --> UC08
+professor --> UC09
+professor --> UC10
+
+' === ASSOCIAÇÕES DO ADMINISTRADOR ===
+admin --> UC11
+admin --> UC12
+admin --> UC13
+admin --> UC14
+admin --> UC15
+
+' === ASSOCIAÇÕES DO MÉDICO ===
+medico --> UC16
+medico --> UC17
+medico --> UC18
+
+' === INTEGRAÇÃO COM SISTEMA EXTERNO ===
+UC11 --> sistemaFinanceiro
+UC12 --> sistemaFinanceiro
+UC13 --> sistemaFinanceiro
+
+' === DEPENDÊNCIAS INCLUDE ===
+UC01 ..> UC19 : <<include>>
+UC03 ..> UC19 : <<include>>
+UC06 ..> UC19 : <<include>>
+UC07 ..> UC19 : <<include>>
+UC10 ..> UC19 : <<include>>
+UC16 ..> UC19 : <<include>>
+
+' === DEPENDÊNCIAS EXTEND ===
+UC01 ..> UC20 : <<extend>>
+UC02 ..> UC20 : <<extend>>
+UC08 ..> UC20 : <<extend>>
+
+@enduml

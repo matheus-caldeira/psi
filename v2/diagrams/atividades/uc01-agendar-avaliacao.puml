@@ -1,0 +1,108 @@
+@startuml uc01-agendar-avaliacao
+title Diagrama de Atividades - UC01 Agendar Avaliação Física
+
+start
+
+:Aluno acessa o sistema web;
+
+:Sistema apresenta tela de login;
+
+repeat
+    :Aluno informa credenciais;
+
+    :Sistema valida credenciais;
+
+    if (Credenciais válidas?) then (sim)
+
+        :Sistema exibe menu principal;
+
+        :Aluno seleciona\n"Agendar Avaliação Física";
+
+        if (Possui agendamento ativo?) then (sim)
+            :Sistema exibe agendamento atual;
+
+            if (Deseja reagendar?) then (sim)
+                :Sistema cancela\nagendamento anterior;
+            else (não)
+                :Retorna ao menu;
+                stop
+            endif
+        endif
+
+        :Sistema exibe tipos de avaliação;
+
+        note right
+            Tipos disponíveis:
+            - Avaliação Completa
+            - Avaliação Parcial
+            - Bioimpedância
+        end note
+
+        :Aluno escolhe tipo de avaliação;
+
+        :Sistema exibe calendário;
+
+        repeat
+            :Aluno seleciona data;
+
+            :Sistema busca horários disponíveis;
+
+            if (Horários disponíveis?) then (sim)
+                :Sistema exibe horários;
+
+                :Aluno escolhe horário;
+
+                :Sistema exibe resumo\ndo agendamento;
+
+                :Aluno confirma agendamento;
+
+                if (Horário ainda livre?) then (sim)
+                    :Sistema registra agendamento;
+
+                    :Sistema reserva horário;
+
+                    fork
+                        :Envia notificação\nao aluno;
+                    fork again
+                        :Envia notificação\nao profissional;
+                    end fork
+
+                    :Sistema exibe\nmensagem de sucesso;
+
+                    stop
+
+                else (não)
+                    :Sistema informa\nconflito de horário;
+
+                    :Sistema atualiza\nhorários disponíveis;
+                endif
+
+            else (não)
+                :Sistema exibe alerta\n"Sem horários nesta data";
+
+                :Sistema sugere\ndatas alternativas;
+            endif
+
+        repeat while (Escolher outra data?) is (sim)
+        ->não;
+
+        :Operação cancelada;
+        stop
+
+    else (não)
+        :Sistema exibe erro;
+
+        :Sistema incrementa tentativas;
+
+        if (Tentativas >= 3?) then (sim)
+            :Sistema bloqueia\nacesso por 30 minutos;
+            stop
+        endif
+    endif
+
+repeat while (Tentar novamente?) is (sim)
+->não;
+
+stop
+
+@enduml
