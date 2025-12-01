@@ -175,28 +175,18 @@ A especificação inclui pré-condições, fluxo principal, fluxos alternativos,
 
 ### Diagrama de Relacionamento entre Fluxos
 
-```
-                    ┌─────────────────────────────────────┐
-                    │         FLUXO PRINCIPAL             │
-                    │                                     │
-┌───────────┐       │  1. Acessa terminal                 │
-│   INÍCIO  │──────►│  2. Solicita autenticação           │
-└───────────┘       │  3. Informa credenciais             │
-                    │  4. Valida credenciais ─────────────┼──► FE01 (Falha autenticação)
-                    │  5. Exibe menu                      │
-                    │  6. Seleciona "Consultar Treino" ───┼──► FA02 (Outra data)
-                    │  7. Recupera treino ────────────────┼──► FA01 (Treino não encontrado)
-                    │  8. Exibe exercícios                │
-                    │  9. Visualiza e confirma ───────────┼──► FA03 (Imprimir)
-                    │ 10. Registra frequência             │
-                    │ 11. Confirmação                     │
-                    │         │                           │──► FE02 (Sistema indisponível)
-                    │         ▼                           │──► FE03 (Sessão expirada)
-                    │      ┌─────┐                        │
-                    │      │ FIM │                        │
-                    │      └─────┘                        │
-                    └─────────────────────────────────────┘
-```
+![Diagrama de Relacionamento entre Fluxos - UC01](../diagrams/atividades/uc01-fluxos-relacionamento.png)
+
+**Legenda de Cores:**
+| Cor | Fluxo |
+|-----|-------|
+| Azul claro | Fluxo Principal |
+| Amarelo | FA01 - Treino não cadastrado |
+| Verde | FA02 - Visualizar outra data |
+| Azul | FA03 - Imprimir treino |
+| Vermelho | FE01 - Falha autenticação |
+
+**Exceções Transversais:** FE02 - Sistema indisponível | FE03 - Sessão expirada (10 min)
 
 ---
 

@@ -184,33 +184,19 @@ A especificação contempla pré-condições, fluxo principal, fluxos alternativ
 
 ### Diagrama de Relacionamento entre Fluxos
 
-```
-                    ┌──────────────────────────────────────────┐
-                    │           FLUXO PRINCIPAL                │
-                    │                                          │
-┌───────────┐       │  1. Acessa sistema web                   │
-│   INÍCIO  │──────►│  2. Apresenta login                      │
-└───────────┘       │  3. Informa credenciais                  │
-                    │  4. Valida acesso ───────────────────────┼──► FE01 (Falha autenticação)
-                    │  5. Seleciona "Agendar Avaliação" ───────┼──► FA02 (Já possui agendamento)
-                    │  6. Exibe tipos de avaliação             │
-                    │  7. Escolhe tipo                         │
-                    │  8. Exibe calendário                     │
-                    │  9. Seleciona data                       │
-                    │ 10. Exibe horários ──────────────────────┼──► FA01 (Sem horários)
-                    │ 11. Escolhe horário                      │
-                    │ 12. Exibe resumo ────────────────────────┼──► FA03 (Cancelar)
-                    │ 13. Confirma agendamento                 │
-                    │ 14. Registra e reserva ──────────────────┼──► FE02 (Conflito horário)
-                    │ 15-16. Envia notificações                │
-                    │ 17. Mensagem de sucesso                  │
-                    │         │                                │──► FE03 (Falha conexão)
-                    │         ▼                                │
-                    │      ┌─────┐                             │
-                    │      │ FIM │                             │
-                    │      └─────┘                             │
-                    └──────────────────────────────────────────┘
-```
+![Diagrama de Relacionamento entre Fluxos - UC01](../diagrams/atividades/uc01-fluxos-relacionamento.png)
+
+**Legenda de Cores:**
+| Cor | Fluxo |
+|-----|-------|
+| Azul claro | Fluxo Principal |
+| Amarelo | FA01 - Sem horários na data |
+| Verde | FA02 - Já possui agendamento |
+| Azul | FA03 - Cancelar processo |
+| Vermelho claro | FE01 - Falha autenticação |
+| Rosa | FE02 - Conflito de horário |
+
+**Exceção Transversal:** FE03 - Falha de conexão (qualquer passo)
 
 ---
 

@@ -1,0 +1,37 @@
+@startuml uc01-fluxos-relacionamento
+title UC01 - Agendar Avaliação Física\nRelacionamento entre Fluxos
+
+start
+
+:1-4. Autenticação;
+note right: FE01 se falhar
+
+:5. Menu Principal;
+note right: FA02 se já agendado
+
+:6-10. Seleção de Data/Horário;
+note right: FA01 se sem horários
+
+:11-12. Resumo;
+note right: FA03 para cancelar
+
+:13-14. Confirma Agendamento;
+note right: FE02 se conflito
+
+:15-17. Notificações e Sucesso;
+
+stop
+
+legend right
+  **Fluxos Alternativos**
+  FA01 - Sem horários na data
+  FA02 - Já possui agendamento
+  FA03 - Cancelar processo
+  ----
+  **Fluxos de Exceção**
+  FE01 - Falha autenticação
+  FE02 - Conflito de horário
+  FE03 - Falha de conexão
+endlegend
+
+@enduml
