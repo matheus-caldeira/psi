@@ -21,52 +21,51 @@ endif
 
 :Sistema exibe formulário\nde avaliação;
 
-partition "Medidas Corporais" {
-    :Professor registra peso;
-    :Professor registra altura;
-    :Professor calcula IMC;
-    :Professor registra\npercentual de gordura;
-    :Professor registra\ncircunferências;
+repeat
+    partition "Medidas Corporais" {
+        :Professor registra peso;
+        :Professor registra altura;
+        :Professor calcula IMC;
+        :Professor registra\npercentual de gordura;
+        :Professor registra\ncircunferências;
 
-    note right
-        Circunferências:
-        - Braço
-        - Peitoral
-        - Cintura
-        - Quadril
-        - Coxa
-        - Panturrilha
-    end note
-}
+        note right
+            Circunferências:
+            - Braço
+            - Peitoral
+            - Cintura
+            - Quadril
+            - Coxa
+            - Panturrilha
+        end note
+    }
 
-partition "Testes Físicos" {
-    :Professor registra\nteste de flexibilidade;
-    :Professor registra\nteste de resistência;
-    :Professor registra\nteste de força;
-}
+    partition "Testes Físicos" {
+        :Professor registra\nteste de flexibilidade;
+        :Professor registra\nteste de resistência;
+        :Professor registra\nteste de força;
+    }
 
-:Professor adiciona\nobservações gerais;
+    :Professor adiciona\nobservações gerais;
 
-if (Dados completos?) then (sim)
-    :Professor confirma registro;
+    :Sistema valida dados;
 
-    :Sistema salva avaliação;
+repeat while (Dados incompletos?) is (sim)
+->não;
 
-    :Sistema atualiza histórico\ndo aluno;
+:Professor confirma registro;
 
-    fork
-        :Sistema notifica aluno\nsobre nova avaliação;
-    fork again
-        :Sistema disponibiliza dados\npara médico;
-    end fork
+:Sistema salva avaliação;
 
-    :Avaliação registrada\ncom sucesso;
+:Sistema atualiza histórico\ndo aluno;
 
-else (não)
-    :Sistema indica campos\nobrigatórios faltantes;
+fork
+    :Sistema notifica aluno\nsobre nova avaliação;
+fork again
+    :Sistema disponibiliza dados\npara médico;
+end fork
 
-    backward:Professor registra peso;
-endif
+:Avaliação registrada\ncom sucesso;
 
 stop
 

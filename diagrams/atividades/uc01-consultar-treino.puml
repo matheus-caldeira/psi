@@ -7,48 +7,55 @@ start
 
 :Sistema solicita autenticação;
 
-:Aluno fornece credenciais;
+repeat
+    :Aluno fornece credenciais;
 
-if (Credenciais válidas?) then (sim)
-    :Sistema exibe menu principal;
+    :Sistema valida credenciais;
 
-    :Aluno seleciona "Consultar Treino Diário";
+    if (Credenciais válidas?) then (sim)
+        :Sistema exibe menu principal;
 
-    :Sistema busca treino da data atual;
+        :Aluno seleciona "Consultar Treino Diário";
 
-    if (Treino encontrado?) then (sim)
-        :Sistema exibe lista de exercícios;
+        :Sistema busca treino da data atual;
 
-        note right
-            Exibe:
-            - Nome do exercício
-            - Séries
-            - Repetições
-            - Carga
-            - Observações
-        end note
+        if (Treino encontrado?) then (sim)
+            :Sistema exibe lista de exercícios;
 
-        :Aluno visualiza treino;
+            note right
+                Exibe:
+                - Nome do exercício
+                - Séries
+                - Repetições
+                - Carga
+                - Observações
+            end note
 
-        :Sistema registra frequência;
+            :Aluno visualiza treino;
 
-    else (não)
-        :Sistema exibe mensagem\n"Treino não cadastrado";
+            :Sistema registra frequência;
 
-        :Sistema sugere contato\ncom professor;
-    endif
+        else (não)
+            :Sistema exibe mensagem\n"Treino não cadastrado";
 
-else (não)
-    :Sistema exibe erro de autenticação;
+            :Sistema sugere contato\ncom professor;
+        endif
 
-    if (Tentativas < 3?) then (sim)
-        :Retorna para autenticação;
-        backward:Aluno fornece credenciais;
-    else (não)
-        :Sistema bloqueia acesso temporariamente;
         stop
+
+    else (não)
+        :Sistema exibe erro de autenticação;
+
+        :Sistema incrementa tentativas;
+
+        if (Tentativas >= 3?) then (sim)
+            :Sistema bloqueia acesso\ntemporariamente;
+            stop
+        endif
     endif
-endif
+
+repeat while (Tentar novamente?) is (sim)
+->não;
 
 stop
 

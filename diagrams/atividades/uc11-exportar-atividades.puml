@@ -11,62 +11,64 @@ start
 
 :Sistema exibe filtros\nde exportação;
 
-:Administrador define\nperíodo de exportação;
+repeat
+    :Administrador define\nperíodo de exportação;
 
-:Administrador seleciona\ntipos de atividades;
+    :Administrador seleciona\ntipos de atividades;
 
-:Sistema busca atividades\nno período;
+    :Sistema busca atividades\nno período;
 
-if (Atividades encontradas?) then (sim)
+    if (Atividades encontradas?) then (sim)
 
-    :Sistema gera prévia\ndos dados;
+        :Sistema gera prévia\ndos dados;
 
-    :Sistema exibe resumo:
-    - Total de alunos
-    - Total de atividades
-    - Valor total;
+        :Sistema exibe resumo;
 
-    :Administrador revisa dados;
+        note right
+            Resumo:
+            - Total de alunos
+            - Total de atividades
+            - Valor total
+        end note
 
-    if (Dados corretos?) then (sim)
+        :Administrador revisa dados;
 
-        :Administrador confirma\nexportação;
+        if (Dados corretos?) then (sim)
 
-        :Sistema gera arquivo\nno formato financeiro;
+            :Administrador confirma\nexportação;
 
-        :Sistema tenta enviar ao\nSistema Financeiro;
+            :Sistema gera arquivo\nno formato financeiro;
 
-        if (Envio bem-sucedido?) then (sim)
+            :Sistema tenta enviar ao\nSistema Financeiro;
 
-            :Sistema registra log\nde exportação;
+            if (Envio bem-sucedido?) then (sim)
 
-            :Exportação concluída\ncom sucesso;
+                :Sistema registra log\nde exportação;
 
-        else (não)
+                :Exportação concluída\ncom sucesso;
 
-            :Sistema registra erro\nde comunicação;
+            else (não)
 
-            :Sistema disponibiliza\narquivo para download;
+                :Sistema registra erro\nde comunicação;
 
-            :Administrador pode\nreenviar manualmente;
+                :Sistema disponibiliza\narquivo para download;
+
+                :Administrador pode\nreenviar manualmente;
+
+            endif
+
+            stop
 
         endif
 
     else (não)
 
-        :Administrador ajusta\nfiltros;
-
-        backward:Sistema busca atividades\nno período;
+        :Sistema informa\n"Nenhuma atividade encontrada";
 
     endif
 
-else (não)
-
-    :Sistema informa\n"Nenhuma atividade encontrada";
-
-    :Administrador pode\najustar período;
-
-endif
+repeat while (Ajustar filtros?) is (sim)
+->não;
 
 stop
 

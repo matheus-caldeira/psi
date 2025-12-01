@@ -5,73 +5,75 @@ start
 
 :Sistema exibe tela de login;
 
-:Usuário informa\ne-mail/matrícula;
+repeat
+    :Usuário informa\ne-mail/matrícula;
 
-:Usuário informa senha;
+    :Usuário informa senha;
 
-:Sistema valida credenciais;
+    :Sistema valida credenciais;
 
-if (Credenciais válidas?) then (sim)
+    if (Credenciais válidas?) then (sim)
 
-    :Sistema verifica status\ndo cadastro;
+        :Sistema verifica status\ndo cadastro;
 
-    if (Cadastro ativo?) then (sim)
+        if (Cadastro ativo?) then (sim)
 
-        if (Primeiro acesso?) then (sim)
+            if (Primeiro acesso?) then (sim)
 
-            :Sistema solicita\ncriação de nova senha;
+                :Sistema solicita\ncriação de nova senha;
 
-            :Usuário cria nova senha;
+                :Usuário cria nova senha;
 
-            :Sistema exibe\ntermos de uso;
+                :Sistema exibe\ntermos de uso;
 
-            :Usuário aceita termos;
+                :Usuário aceita termos;
+
+            else (não)
+                :Prossegue normalmente;
+            endif
+
+            :Sistema carrega\npermissões do perfil;
+
+            :Sistema inicia sessão;
+
+            :Sistema redireciona para\nárea apropriada;
+
+            :Autenticação\nbem-sucedida;
+
+            stop
 
         else (não)
-            #palegreen:Prossegue normalmente;
+
+            :Sistema informa\n"Cadastro inativo";
+
+            :Sistema orienta contato\ncom administração;
+
+            stop
+
         endif
 
-        :Sistema carrega\npermissões do perfil;
-
-        :Sistema inicia sessão;
-
-        :Sistema redireciona para\nárea apropriada;
-
-        :Autenticação\nbem-sucedida;
-
     else (não)
 
-        :Sistema informa\n"Cadastro inativo";
+        :Sistema incrementa\ncontador de tentativas;
 
-        :Sistema orienta contato\ncom administração;
+        if (Tentativas >= 3?) then (sim)
 
-        stop
+            :Sistema bloqueia conta\ntemporariamente;
+
+            :Sistema envia e-mail\nde alerta ao usuário;
+
+            :Acesso bloqueado;
+
+            stop
+
+        else (não)
+            :Sistema exibe erro\n"Credenciais inválidas";
+        endif
 
     endif
 
-else (não)
-
-    :Sistema incrementa\ncontador de tentativas;
-
-    if (Tentativas < 3?) then (sim)
-
-        :Sistema exibe erro\n"Credenciais inválidas";
-
-        backward:Usuário informa\ne-mail/matrícula;
-
-    else (não)
-
-        :Sistema bloqueia conta\ntemporariamente;
-
-        :Sistema envia e-mail\nde alerta ao usuário;
-
-        :Acesso bloqueado;
-
-        stop
-
-    endif
-
-endif
+repeat while (Tentar novamente?) is (sim)
+->não;
 
 stop
 

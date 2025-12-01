@@ -15,45 +15,50 @@ start
 
 :Aluno seleciona tipo de avaliação;
 
-:Sistema exibe calendário\ncom horários disponíveis;
+repeat
+    :Sistema exibe calendário\ncom horários disponíveis;
 
-if (Horários disponíveis?) then (sim)
+    if (Horários disponíveis?) then (sim)
 
-    :Aluno seleciona data e horário;
+        :Aluno seleciona data e horário;
 
-    :Sistema exibe resumo\ndo agendamento;
+        :Sistema exibe resumo\ndo agendamento;
 
-    :Aluno confirma agendamento;
+        :Aluno confirma agendamento;
 
-    if (Horário ainda disponível?) then (sim)
+        if (Horário ainda disponível?) then (sim)
 
-        :Sistema registra agendamento;
+            :Sistema registra agendamento;
 
-        fork
-            :Sistema envia notificação\nao aluno;
-        fork again
-            :Sistema envia notificação\nao profissional;
-        end fork
+            fork
+                :Sistema envia notificação\nao aluno;
+            fork again
+                :Sistema envia notificação\nao profissional;
+            end fork
 
-        :Agendamento confirmado;
+            :Agendamento confirmado;
+
+            stop
+
+        else (não)
+            :Sistema informa conflito\nde horário;
+
+            :Sistema atualiza calendário;
+        endif
 
     else (não)
-        :Sistema informa conflito\nde horário;
+        :Sistema sugere\ndatas alternativas;
 
-        :Retorna ao calendário;
-        backward:Sistema exibe calendário\ncom horários disponíveis;
+        if (Aluno aceita alternativa?) then (sim)
+            :Aluno seleciona nova data;
+        else (não)
+            :Operação cancelada;
+            stop
+        endif
     endif
 
-else (não)
-    :Sistema sugere\ndatas alternativas;
-
-    if (Aluno aceita alternativa?) then (sim)
-        :Aluno seleciona nova data;
-        backward:Sistema exibe calendário\ncom horários disponíveis;
-    else (não)
-        :Operação cancelada;
-    endif
-endif
+repeat while (Selecionar outro horário?) is (sim)
+->não;
 
 stop
 
